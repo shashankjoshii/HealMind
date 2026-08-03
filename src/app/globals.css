@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+/* ============================================================
+   HealMind design tokens
+   Calm, soft, low-arousal. Nothing saturated enough to alarm.
+   ============================================================ */
+
+@theme {
+  /* Brand ramp — soft lavender/indigo */
+  --color-brand-50: #f2f1ff;
+  --color-brand-100: #e7e5ff;
+  --color-brand-200: #d2ceff;
+  --color-brand-300: #b3abff;
+  --color-brand-400: #8f80ff;
+  --color-brand-500: #6c63ff;
+  --color-brand-600: #5b4fe8;
+  --color-brand-700: #4a3fc4;
+  --color-brand-800: #3d359e;
+  --color-brand-900: #34307d;
+
+  /* Calm blue — secondary accent */
+  --color-calm-50: #eff7ff;
+  --color-calm-100: #dbedff;
+  --color-calm-200: #bfe0ff;
+  --color-calm-300: #92cdff;
+  --color-calm-400: #5fb0fc;
+  --color-calm-500: #3a90f5;
+  --color-calm-600: #2472e3;
+  --color-calm-700: #1d5cc0;
+  --color-calm-800: #1e4d9b;
+  --color-calm-900: #1d437b;
+
+  /* Emerald — growth, completion */
+  --color-grow-50: #eefbf3;
+  --color-grow-100: #d6f5e2;
+  --color-grow-200: #b0e9ca;
+  --color-grow-300: #7cd7ac;
+  --color-grow-400: #47bd8b;
+  --color-grow-500: #24a271;
+  --color-grow-600: #16825b;
+  --color-grow-700: #12684b;
+  --color-grow-800: #12523c;
+  --color-grow-900: #104433;
+
+  /* Warm amber — attention without alarm */
+  --color-warm-50: #fff9ed;
+  --color-warm-100: #fff1d4;
+  --color-warm-200: #ffdfa8;
+  --color-warm-300: #ffc871;
+  --color-warm-400: #ffb547;
+  --color-warm-500: #f99417;
+  --color-warm-600: #e4740d;
+  --color-warm-700: #bd560e;
+  --color-warm-800: #964413;
+  --color-warm-900: #7a3a13;
+
+  /* Soft rose — used for error/crisis. Deliberately gentle. */
+  --color-soft-50: #fff1f1;
+  --color-soft-100: #ffe0e0;
+  --color-soft-200: #ffc6c6;
+  --color-soft-300: #ff9d9d;
+  --color-soft-400: #ff6b6b;
+  --color-soft-500: #f83b3b;
+  --color-soft-600: #e51d1d;
+  --color-soft-700: #c11414;
+  --color-soft-800: #a01515;
+  --color-soft-900: #841818;
+
+  /* Radii — generous, per spec (20–28px) */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 1.75rem;
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  /* Soft, diffuse shadows — no hard drop shadows anywhere */
+  --shadow-soft: 0 1px 2px rgb(16 12 40 / 0.04), 0 8px 24px -8px rgb(16 12 40 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(16 12 40 / 0.04), 0 16px 40px -12px rgb(16 12 40 / 0.14);
+  --shadow-glow: 0 8px 32px -8px rgb(108 99 255 / 0.4);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-breathe: breathe 8s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+/* 4s inhale / 4s exhale — matches the box-breathing pacer */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.14); opacity: 0.85; }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+/* ------------------------------------------------------------
+   Semantic surface tokens. Referenced as bg-[var(--surface)] etc.
+   Light is the default; dark overrides below.
+   ------------------------------------------------------------ */
+:root {
+  --canvas: #fafafb;
+  --surface: #ffffff;
+  --surface-muted: #f5f5f8;
+  --surface-inset: #efeff4;
+  --border: #e8e8ef;
+  --border-strong: #d8d8e4;
+  --text: #1a1730;
+  --text-muted: #5d5977;
+  --text-subtle: #8b87a3;
+  --ring: #6c63ff;
+}
+
+.dark {
+  --canvas: #0e0d18;
+  --surface: #17162a;
+  --surface-muted: #1e1d35;
+  --surface-inset: #252341;
+  --border: #2a2846;
+  --border-strong: #3a3760;
+  --text: #f0eefb;
+  --text-muted: #b0abcd;
+  --text-subtle: #837ea6;
+  --ring: #8f80ff;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Prevents layout shift when scrollbars appear/disappear between routes */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Visible focus for keyboard users only — never a focus ring on mouse click */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-200);
+    color: var(--color-brand-900);
+  }
+
+  .dark ::selection {
+    background-color: var(--color-brand-700);
+    color: var(--color-brand-50);
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.022em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer utilities {
+  .surface {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  .text-subtle {
+    color: var(--text-subtle);
+  }
+
+  /* Used sparingly, per spec — nav bars and floating overlays only */
+  .glass {
+    background-color: color-mix(in srgb, var(--surface) 72%, transparent);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  .gradient-warm {
+    background-image: linear-gradient(135deg, #f2f1ff 0%, #eff7ff 45%, #eefbf3 100%);
+  }
+
+  .dark .gradient-warm {
+    background-image: linear-gradient(135deg, #1a1832 0%, #16203a 45%, #142e2b 100%);
+  }
+
+  .gradient-brand {
+    background-image: linear-gradient(135deg, var(--color-brand-500) 0%, var(--color-brand-400) 50%, var(--color-calm-400) 100%);
+  }
+
+  .gradient-text {
+    background-image: linear-gradient(120deg, var(--color-brand-600), var(--color-calm-500) 55%, var(--color-grow-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .dark .gradient-text {
+    background-image: linear-gradient(120deg, var(--color-brand-300), var(--color-calm-300) 55%, var(--color-grow-300));
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface-muted) 25%, var(--surface-inset) 50%, var(--surface-muted) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Hides scrollbar chrome on horizontally-scrolling rails */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Reduced motion. The spec calls for heavy animation, so this
+   has to be thorough rather than decorative.
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
