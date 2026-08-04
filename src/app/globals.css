@@ -73,15 +73,28 @@
   --radius-4xl: 1.75rem;
 
   --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
 
   /* Soft, diffuse shadows — no hard drop shadows anywhere */
   --shadow-soft: 0 1px 2px rgb(16 12 40 / 0.04), 0 8px 24px -8px rgb(16 12 40 / 0.08);
   --shadow-lift: 0 2px 4px rgb(16 12 40 / 0.04), 0 16px 40px -12px rgb(16 12 40 / 0.14);
   --shadow-glow: 0 8px 32px -8px rgb(108 99 255 / 0.4);
 
+  /* Fluid display sizes. clamp() means no breakpoint jumps in headlines. */
+  --text-display-sm: clamp(1.75rem, 1.3rem + 2vw, 2.5rem);
+  --text-display: clamp(2.25rem, 1.4rem + 3.6vw, 3.75rem);
+  --text-display-lg: clamp(2.75rem, 1.5rem + 5.4vw, 5rem);
+
   --animate-float: float 6s ease-in-out infinite;
   --animate-breathe: breathe 8s ease-in-out infinite;
   --animate-shimmer: shimmer 2s linear infinite;
+  --animate-drift: drift 22s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(3%, -4%, 0) scale(1.06); }
+  66% { transform: translate3d(-3%, 3%, 0) scale(0.97); }
 }
 
 @keyframes float {
@@ -175,6 +188,45 @@
   }
 }
 
+@layer components {
+  /* Display type — Fraunces optical sizing gives headlines an editorial feel
+     that Jakarta alone can't, without touching body copy legibility. */
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+  }
+
+  .text-display-sm { font-size: var(--text-display-sm); line-height: 1.14; }
+  .text-display    { font-size: var(--text-display); line-height: 1.06; }
+  .text-display-lg { font-size: var(--text-display-lg); line-height: 1.02; }
+
+  /* Bento tiles — the grid unit for dashboard and landing feature blocks. */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  @media (min-width: 640px) {
+    .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .bento { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+  }
+  .bento-2 { grid-column: span 1 / span 1; }
+  .bento-4 { grid-column: span 1 / span 1; }
+  @media (min-width: 640px) {
+    .bento-2 { grid-column: span 2 / span 2; }
+    .bento-4 { grid-column: span 2 / span 2; }
+  }
+  @media (min-width: 1024px) {
+    .bento-2 { grid-column: span 2 / span 2; }
+    .bento-4 { grid-column: span 4 / span 4; }
+  }
+  .bento-tall { grid-row: span 2 / span 2; }
+}
+
 @layer utilities {
   .surface {
     background-color: var(--surface);
@@ -217,6 +269,65 @@
 
   .dark .gradient-text {
     background-image: linear-gradient(120deg, var(--color-brand-300), var(--color-calm-300) 55%, var(--color-grow-300));
+  }
+
+  /* Fine noise over flat gradients. Kills the banding you get on large
+     soft fills and adds a tactile, printed quality. SVG is inlined so the
+     CSP on static hosting doesn't need an exception. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+  }
+
+  /* Layered radial blobs — the ambient background used behind hero and
+     path headers. Colours come from --mesh-1/2/3 so any path can retint it. */
+  .mesh {
+    background-color: var(--canvas);
+    background-image:
+      radial-gradient(at 18% 22%, var(--mesh-1, var(--color-brand-200)) 0px, transparent 52%),
+      radial-gradient(at 82% 12%, var(--mesh-2, var(--color-calm-200)) 0px, transparent 48%),
+      radial-gradient(at 62% 82%, var(--mesh-3, var(--color-grow-200)) 0px, transparent 46%);
+  }
+
+  .dark .mesh {
+    background-image:
+      radial-gradient(at 18% 22%, color-mix(in srgb, var(--mesh-1, var(--color-brand-500)) 26%, transparent) 0px, transparent 52%),
+      radial-gradient(at 82% 12%, color-mix(in srgb, var(--mesh-2, var(--color-calm-500)) 22%, transparent) 0px, transparent 48%),
+      radial-gradient(at 62% 82%, color-mix(in srgb, var(--mesh-3, var(--color-grow-500)) 20%, transparent) 0px, transparent 46%);
+  }
+
+  /* Set by path-themed sections; components read these instead of hardcoding. */
+  .path-gradient {
+    background-image: linear-gradient(135deg, var(--path-from), var(--path-to));
+  }
+
+  .path-text {
+    background-image: linear-gradient(120deg, var(--path-from), var(--path-to));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Hairline top highlight — cheap way to make a card read as lit rather
+     than flat, without adding a heavy border. */
+  .card-lit {
+    position: relative;
+  }
+  .card-lit::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.55), transparent);
+  }
+  .dark .card-lit::before {
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.12), transparent);
   }
 
   .skeleton {

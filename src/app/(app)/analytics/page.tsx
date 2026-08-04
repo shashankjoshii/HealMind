@@ -32,7 +32,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+        <h1 className="font-display text-display-sm">
           Analytics
         </h1>
         <p className="mt-2 text-muted">
@@ -50,10 +50,10 @@ export default function AnalyticsPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="p-6">
           <p className="text-xs font-bold uppercase tracking-widest text-subtle">
-            Recovery score
+            Wellbeing score
           </p>
-          <p className="mt-2 text-4xl font-extrabold">{USER.recoveryScore}</p>
-          <ProgressBar className="mt-4" value={USER.recoveryScore} label="Recovery score" tone="grow" />
+          <p className="mt-2 text-4xl font-extrabold">{USER.wellbeingScore}</p>
+          <ProgressBar className="mt-4" value={USER.wellbeingScore} label="Wellbeing score" tone="grow" />
           <p className="mt-3 text-sm leading-relaxed text-muted">
             A composite of mood stability, check-in consistency, and self-reported
             confidence. It moves slowly by design.

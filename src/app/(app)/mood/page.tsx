@@ -56,7 +56,7 @@ export default function MoodPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+        <h1 className="font-display text-display-sm">
           How are you today?
         </h1>
         <p className="mt-2 text-muted">

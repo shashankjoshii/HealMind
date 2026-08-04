@@ -10,7 +10,8 @@ import type { Meditation } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES = [
-  "All", "Heartbreak", "Sleep", "Anxiety", "Self-worth", "Forgiveness", "Moving on",
+  "All", "Anxiety", "Sleep", "Burnout", "Self-worth", "Low mood", "Grounding",
+  "Focus", "Heartbreak",
 ] as const;
 
 export default function MeditatePage() {
@@ -40,11 +41,9 @@ export default function MeditatePage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Meditation
-        </h1>
+        <h1 className="font-display text-display-sm">Meditation</h1>
         <p className="mt-2 text-muted">
-          Short sessions for the specific things that hurt.
+          Short sessions for the specific thing you&rsquo;re dealing with.
         </p>
       </header>
 

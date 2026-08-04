@@ -1,8 +1,23 @@
 # HealMind
 
-A structured 90-day breakup recovery web app. Next.js 16 · React 19 · TypeScript · Tailwind v4 · Framer Motion · Recharts.
+Structured mental health programmes — anxiety, burnout, low mood, sleep, self-esteem and heartbreak. Next.js 16 · React 19 · TypeScript · Tailwind v4 · Framer Motion · Recharts.
 
 **Current state: frontend only, backed by mock data.** No auth, no database, no payments. Every screen renders real, seeded content so the product can be evaluated end to end before backend work starts.
+
+## The six paths
+
+Each path in [`src/lib/paths.ts`](src/lib/paths.ts) is a genuinely distinct programme, not one template relabelled — different lengths, phase structures, and clinical shapes:
+
+| Path | Days | Shape |
+|---|---|---|
+| Anxiety & overthinking | 60 | Understand → Regulate → Challenge → Graded exposure |
+| Burnout & stress | 45 | Stop the bleed → Recover → Boundaries → Reconnect |
+| Low mood | 60 | Behavioural activation → Reconnect → Untangle → Sustain |
+| Sleep | 42 | CBT-I: baseline → sleep restriction → quiet the mind → maintain |
+| Self-esteem | 60 | Notice the critic → Origins → Rebuild → Act |
+| Heartbreak | 90 | Detox → Acceptance → Rebuild → Identity → Forward |
+
+A user picks one at onboarding; `/paths` switches or enrols in others.
 
 ## Running it
 
@@ -16,9 +31,10 @@ npm run lint
 
 | Route | What it is |
 |---|---|
-| `/` | Landing page — hero, how it works, 15 features, interactive 90-day timeline, testimonials, pricing |
-| `/onboarding` | 8-question assessment → recovery score + generated phase plan |
-| `/dashboard` | Progress ring, today's mission, streak, mood chart, affirmation, achievements |
+| `/` | Landing page — hero with live path tinting, path explorer, bento feature grid, testimonials, pricing |
+| `/onboarding` | Path picker + 6-question assessment → wellbeing score and generated phase plan |
+| `/paths` | Browse all six programmes, switch active path, see per-path progress |
+| `/dashboard` | Bento grid — path-themed mission tile, wellbeing ring, streak, habits, mood chart |
 | `/today` | Step-by-step daily mission with box-breathing pacer and completion confetti |
 | `/mood` | Mood check-in (7-point scale + 5 sliders), trend charts, 60-day heatmap |
 | `/journal` | Entry composer with prompts, mood tagging, search, lockable entries |
@@ -44,6 +60,7 @@ src/
     app/             # sidebar, charts
   lib/
     types.ts         # domain models — the contract for a future backend
+    paths.ts         # the six programmes and their phases
     mock-data.ts     # seeded data satisfying those models
     safety.ts        # crisis detection + helplines
 ```
@@ -54,7 +71,9 @@ src/
 
 ## The crisis safety layer — read before changing `/coach`
 
-`src/lib/safety.ts` intercepts messages indicating suicidal ideation, self-harm, or intent to harm others. On a match the coach **does not** counsel, reflect, or ask follow-up questions — it states its limits and surfaces helplines. This is a deliberate product decision: an empathetic chatbot keeps someone talking to software at the moment they most need a person.
+`src/lib/safety.ts` intercepts messages indicating crisis. On a match the coach **does not** counsel, reflect, or ask follow-up questions — it states its limits and surfaces helplines. This is a deliberate product decision: an empathetic chatbot keeps someone talking to software at the moment they most need a person.
+
+Detection is **category-routed** across six risk types — `suicide`, `selfharm`, `harm-others`, `eating`, `abuse`, `substance` — because a general mental health app draws a wider risk surface than the breakup-only version did, and each category needs a different specialist service. Rule order in `RULES` is significant: abuse is matched before suicide so "he threatened to kill me" routes to a domestic abuse line rather than a suicide hotline.
 
 The current implementation is keyword-based and **is not sufficient for production**:
 
@@ -70,7 +89,7 @@ Before this ships to real users:
 4. **Involve a qualified clinician** in tuning thresholds and reviewing the response copy.
 5. **Log crisis events** (privately, minimally) so the response can be audited and improved.
 
-`npm run test:safety` exercises the matcher against 14 must-flag and 8 must-not-flag phrasings.
+`npm run test:safety` exercises the matcher against 25 must-flag phrasings (checking category routing, not just detection) and 14 must-not-flag phrasings of ordinary distress. It parses the regexes out of `safety.ts` directly, so the test can't drift from the implementation.
 
 ## What isn't built
 

@@ -37,23 +37,50 @@ export interface MoodEntry {
   note?: string;
 }
 
-export type PhaseKey =
-  | "detox"
-  | "acceptance"
-  | "selfcare"
-  | "identity"
-  | "growth"
-  | "forward";
+/* ------------------------------------------------------------------
+   Paths
+   ------------------------------------------------------------------
+   A "path" is a self-contained programme for one concern. Users pick one
+   as their primary focus at onboarding and can switch or add later.
+   Heartbreak is one path among several, not the shape of the whole app.
+   ------------------------------------------------------------------ */
+
+export type PathKey =
+  | "anxiety"
+  | "burnout"
+  | "lowmood"
+  | "sleep"
+  | "selfesteem"
+  | "heartbreak";
+
+export interface Path {
+  key: PathKey;
+  name: string;
+  /** One-line pitch used on cards and the picker. */
+  tagline: string;
+  description: string;
+  /** Short second-person symptom lines — "pick the one that sounds like you". */
+  signals: string[];
+  emoji: string;
+  /** Two hex stops for this path's gradient. */
+  gradient: [string, string];
+  accent: string;
+  /** Programme length in days. Not every concern fits 90. */
+  totalDays: number;
+  phases: Phase[];
+}
 
 export interface Phase {
-  key: PhaseKey;
+  key: string;
   name: string;
-  /** Inclusive day range within the 90-day programme. */
+  /** Inclusive day range within the parent path's programme. */
   startDay: number;
   endDay: number;
   tagline: string;
   description: string;
   color: string;
+  /** Bullet list shown when the phase is expanded. */
+  activities: string[];
 }
 
 export type MissionKind =
@@ -63,7 +90,9 @@ export type MissionKind =
   | "breathing"
   | "gratitude"
   | "action"
-  | "journal";
+  | "journal"
+  | "somatic"
+  | "behavioural";
 
 export interface MissionStep {
   id: string;
@@ -77,7 +106,8 @@ export interface MissionStep {
 
 export interface DailyMission {
   day: number;
-  phase: PhaseKey;
+  path: PathKey;
+  phase: string;
   title: string;
   intention: string;
   steps: MissionStep[];
@@ -108,18 +138,24 @@ export interface Achievement {
 export interface Meditation {
   id: string;
   title: string;
-  category:
-    | "Heartbreak"
-    | "Sleep"
-    | "Anxiety"
-    | "Self-worth"
-    | "Forgiveness"
-    | "Moving on";
+  category: MeditationCategory;
   minutes: number;
   narrator: string;
   description: string;
   favorite: boolean;
+  /** Paths this session is especially relevant to. */
+  paths: PathKey[];
 }
+
+export type MeditationCategory =
+  | "Anxiety"
+  | "Sleep"
+  | "Burnout"
+  | "Self-worth"
+  | "Low mood"
+  | "Heartbreak"
+  | "Focus"
+  | "Grounding";
 
 export type ChatRole = "user" | "coach";
 
@@ -134,17 +170,29 @@ export interface ChatMessage {
   suggestions?: string[];
 }
 
+export interface Habit {
+  id: string;
+  name: string;
+  icon: string;
+  /** Days of the last 7 on which this was completed, most recent last. */
+  week: boolean[];
+  streak: number;
+}
+
 export interface UserProfile {
   name: string;
-  /** Current day in the 90-day programme, 1-indexed. */
+  /** The path the user is actively working through. */
+  activePath: PathKey;
+  /** Paths they've enrolled in, including completed ones. */
+  enrolledPaths: PathKey[];
+  /** Current day within the active path's programme, 1-indexed. */
   currentDay: number;
   streak: number;
   longestStreak: number;
   xp: number;
   level: number;
-  /** 0–100 composite of mood, consistency and self-reported confidence. */
-  recoveryScore: number;
-  breakupDate: string;
+  /** 0–100 composite of mood, consistency and self-reported wellbeing. */
+  wellbeingScore: number;
   joinedOn: string;
   completedDays: number[];
 }

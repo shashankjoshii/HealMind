@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  BarChart3, CalendarCheck, Flower2, Home, Menu, MessageCircleHeart, Moon,
-  NotebookPen, Route, Settings, Smile, Sun, Users, X,
+  BarChart3, CalendarCheck, Compass, Flower2, Home, Menu, MessageCircleHeart,
+  Moon, NotebookPen, Route, Settings, Smile, Sun, Users, X,
 } from "lucide-react";
 import { Logo } from "@/components/marketing/nav";
 import { useTheme } from "@/components/theme-provider";
-import { USER } from "@/lib/mock-data";
+import { USER, activePath } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -19,6 +19,7 @@ const NAV = [
   { href: "/journal", label: "Journal", icon: NotebookPen },
   { href: "/coach", label: "AI coach", icon: MessageCircleHeart },
   { href: "/journey", label: "Journey", icon: Route },
+  { href: "/paths", label: "Programmes", icon: Compass },
   { href: "/meditate", label: "Meditate", icon: Flower2 },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/community", label: "Community", icon: Users },
@@ -82,8 +83,8 @@ export function Sidebar() {
           </span>
           <div className="min-w-0">
             <p className="truncate text-sm font-bold">{USER.name}</p>
-            <p className="text-xs text-subtle">
-              Day {USER.currentDay} · Level {USER.level}
+            <p className="truncate text-xs text-subtle">
+              {activePath().emoji} Day {USER.currentDay} · Lvl {USER.level}
             </p>
           </div>
         </div>

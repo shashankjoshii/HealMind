@@ -7,19 +7,19 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = { title: "Community" };
 
 const GROUPS = [
-  { name: "First 30 days", members: 2841, active: true, description: "For anyone in the Detox or Acceptance phase." },
-  { name: "Divorce & separation", members: 1204, active: true, description: "Longer relationships, shared lives, legal untangling." },
-  { name: "Situationships", members: 1876, active: false, description: "When it wasn't official but it still broke you." },
-  { name: "Co-parenting", members: 643, active: false, description: "Healing while still in regular contact." },
-  { name: "Anxious attachment", members: 3102, active: true, description: "Understanding the pull and learning to sit with it." },
-  { name: "Sober & healing", members: 512, active: false, description: "Recovery from heartbreak without the drink." },
+  { name: "First 30 days", members: 4218, active: true, description: "For anyone just starting, on any path." },
+  { name: "Anxiety & overthinking", members: 6102, active: true, description: "Racing thoughts, avoidance, and the 3am spiral." },
+  { name: "Burnout & work stress", members: 2984, active: false, description: "Boundaries, recovery, and workplaces that take too much." },
+  { name: "Sleep", members: 1876, active: true, description: "For anyone doing the hard early weeks of CBT-I." },
+  { name: "Self-esteem", members: 2431, active: false, description: "Quieting the inner critic, and taking up space." },
+  { name: "Heartbreak", members: 3102, active: false, description: "Breakups, divorce, and situationships that still hurt." },
 ];
 
 const THREADS = [
-  { author: "quiet_river", group: "First 30 days", title: "Day 12 and I finally slept through the night", replies: 47, hours: 2, tone: "grow" as const },
-  { author: "amber_finch", group: "Anxious attachment", title: "How do you stop checking if they've been online?", replies: 89, hours: 5, tone: "brand" as const },
-  { author: "north_wind", group: "Divorce & separation", title: "Nobody warns you about the admin of leaving", replies: 34, hours: 9, tone: "calm" as const },
-  { author: "small_bird", group: "Situationships", title: "My friends think I'm overreacting. Am I?", replies: 126, hours: 14, tone: "warm" as const },
+  { author: "quiet_river", group: "Sleep", title: "Day 12 of sleep restriction and I finally slept through", replies: 47, hours: 2, tone: "calm" as const },
+  { author: "amber_finch", group: "Anxiety & overthinking", title: "How do you stop replaying conversations at 2am?", replies: 89, hours: 5, tone: "brand" as const },
+  { author: "north_wind", group: "Burnout & work stress", title: "Told my manager no for the first time in four years", replies: 134, hours: 9, tone: "warm" as const },
+  { author: "small_bird", group: "Self-esteem", title: "Does the imposter feeling ever actually go away?", replies: 126, hours: 14, tone: "grow" as const },
 ];
 
 export default function CommunityPage() {
@@ -27,7 +27,7 @@ export default function CommunityPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+          <h1 className="font-display text-display-sm">
             Community
           </h1>
           <p className="mt-2 text-muted">
@@ -46,8 +46,8 @@ export default function CommunityPage() {
           <p className="font-bold">You&rsquo;re anonymous here</p>
           <p className="mt-1 text-sm leading-relaxed text-muted">
             You post as <strong>quiet_harbour_41</strong>. Your real name is never
-            shown. Every thread is moderated, and posts naming or targeting an ex
-            are removed — that protects you as much as them.
+            shown. Every thread is moderated, and posts naming or targeting a
+            specific person are removed — that protects you as much as them.
           </p>
         </div>
       </Card>
@@ -109,8 +109,8 @@ export default function CommunityPage() {
         <Flag className="mt-0.5 h-4 w-4 shrink-0 text-subtle" />
         <p className="text-sm leading-relaxed text-muted">
           Something feel wrong in a thread? Report it. Moderators review every
-          report, and posts that encourage self-harm, revenge, or contacting an ex
-          are removed on sight.
+          report, and posts that encourage self-harm, disordered eating, or
+          stopping prescribed treatment are removed on sight.
         </p>
       </Card>
     </div>

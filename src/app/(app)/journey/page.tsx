@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import { Check, Lock, Star, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ProgressBar } from "@/components/ui/progress-ring";
-import { ACHIEVEMENTS, PHASES, USER, phaseForDay } from "@/lib/mock-data";
+import { ACHIEVEMENTS, USER, activePath } from "@/lib/mock-data";
+import { phaseForDay } from "@/lib/paths";
 import { cn } from "@/lib/utils";
 
 /** XP needed for the next level — flat curve keeps the maths readable. */
@@ -14,76 +14,90 @@ const XP_PER_LEVEL = 700;
 
 export default function JourneyPage() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const path = activePath();
+  const currentPhase = phaseForDay(path, USER.currentDay);
   const xpIntoLevel = USER.xp % XP_PER_LEVEL;
   const unlocked = ACHIEVEMENTS.filter((a) => a.unlockedOn !== null);
 
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Your journey
-        </h1>
+        <p className="flex items-center gap-2 text-sm font-semibold text-muted">
+          <span>{path.emoji}</span>
+          {path.name}
+        </p>
+        <h1 className="mt-2 font-display text-display-sm">Your journey</h1>
         <p className="mt-2 text-muted">
-          {USER.completedDays.length} days completed. {90 - USER.currentDay} to go.
+          {USER.completedDays.length} days completed.{" "}
+          {path.totalDays - USER.currentDay} to go.
         </p>
       </header>
 
       {/* Level card */}
-      <Card className="gradient-warm p-7">
+      <Card
+        className="card-lit grain relative overflow-hidden p-7 text-white"
+        style={{
+          backgroundImage: `linear-gradient(140deg, ${path.gradient[0]}, ${path.gradient[1]})`,
+        }}
+      >
         <div className="flex flex-wrap items-center justify-between gap-5">
           <div className="flex items-center gap-4">
-            <span className="grid h-16 w-16 place-items-center rounded-3xl gradient-brand text-2xl font-extrabold text-white shadow-[var(--shadow-glow)]">
+            <span className="grid h-16 w-16 place-items-center rounded-3xl bg-white/20 font-display text-3xl backdrop-blur">
               {USER.level}
             </span>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-subtle">
+              <p className="text-xs font-bold uppercase tracking-widest text-white/70">
                 Level {USER.level}
               </p>
-              <p className="text-xl font-extrabold">
-                {phaseForDay(USER.currentDay).name} phase
-              </p>
+              <p className="font-display text-2xl">{currentPhase.name} phase</p>
             </div>
           </div>
 
           <div className="flex gap-6">
             <div>
-              <p className="flex items-center gap-1.5 text-2xl font-extrabold">
-                <Zap className="h-5 w-5 text-warm-400" />
+              <p className="flex items-center gap-1.5 font-display text-3xl">
+                <Zap className="h-6 w-6" />
                 {USER.xp.toLocaleString()}
               </p>
-              <p className="text-xs text-subtle">Total XP</p>
+              <p className="text-xs text-white/70">Total XP</p>
             </div>
             <div>
-              <p className="flex items-center gap-1.5 text-2xl font-extrabold">
-                <Star className="h-5 w-5 text-brand-400" />
+              <p className="flex items-center gap-1.5 font-display text-3xl">
+                <Star className="h-6 w-6" />
                 {unlocked.length}
               </p>
-              <p className="text-xs text-subtle">Badges</p>
+              <p className="text-xs text-white/70">Badges</p>
             </div>
           </div>
         </div>
 
-        <ProgressBar
-          className="mt-6"
-          value={(xpIntoLevel / XP_PER_LEVEL) * 100}
-          label={`Progress to level ${USER.level + 1}`}
-        />
-        <p className="mt-2 text-xs text-subtle">
+        <div className="mt-6 h-2.5 w-full overflow-hidden rounded-full bg-white/25">
+          <motion.div
+            className="h-full rounded-full bg-white"
+            initial={{ width: 0 }}
+            animate={{ width: `${(xpIntoLevel / XP_PER_LEVEL) * 100}%` }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          />
+        </div>
+        <p className="mt-2 text-xs text-white/70">
           {XP_PER_LEVEL - xpIntoLevel} XP to level {USER.level + 1}
         </p>
       </Card>
 
-      {/* Healing tree — grows with completion */}
-      <Card className="flex flex-col items-center p-8">
-        <HealingTree progress={USER.currentDay / 90} />
-        <p className="mt-4 text-center text-sm leading-relaxed text-muted">
+      {/* Growth visual */}
+      <Card className="card-lit flex flex-col items-center p-8">
+        <HealingTree
+          progress={USER.currentDay / path.totalDays}
+          color={path.gradient[0]}
+        />
+        <p className="mt-4 max-w-sm text-center text-sm leading-relaxed text-muted">
           Your tree grows a little with every day you complete. It doesn&rsquo;t
           shrink when you miss one.
         </p>
       </Card>
 
       {/* Phase-by-phase day grid */}
-      {PHASES.map((phase) => {
+      {path.phases.map((phase) => {
         const days = Array.from(
           { length: phase.endDay - phase.startDay + 1 },
           (_, i) => phase.startDay + i,
@@ -91,14 +105,14 @@ export default function JourneyPage() {
         const done = days.filter((d) => USER.completedDays.includes(d)).length;
 
         return (
-          <Card key={phase.key} className="p-6 sm:p-7">
+          <Card key={phase.key} className="card-lit p-6 sm:p-7">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span
                   className="h-3.5 w-3.5 rounded-full"
                   style={{ backgroundColor: phase.color }}
                 />
-                <h2 className="text-lg font-bold">{phase.name}</h2>
+                <h2 className="font-display text-xl">{phase.name}</h2>
                 <span className="text-sm text-subtle">
                   Days {phase.startDay}–{phase.endDay}
                 </span>
@@ -126,11 +140,11 @@ export default function JourneyPage() {
                     className={cn(
                       "grid h-10 w-10 place-items-center rounded-2xl text-sm font-bold transition-all duration-200",
                       isDone && "text-white hover:scale-110",
-                      isToday &&
-                        "scale-110 ring-4 ring-brand-500/25 text-white animate-pulse",
+                      isToday && "scale-110 text-white ring-4 ring-brand-500/25",
                       isMissed &&
                         "bg-[var(--surface-inset)] text-subtle hover:scale-105",
-                      isLocked && "cursor-not-allowed bg-[var(--surface-muted)] text-[var(--text-subtle)] opacity-50",
+                      isLocked &&
+                        "cursor-not-allowed bg-[var(--surface-muted)] text-[var(--text-subtle)] opacity-50",
                     )}
                     style={
                       isDone || isToday ? { backgroundColor: phase.color } : undefined
@@ -173,8 +187,8 @@ export default function JourneyPage() {
       })}
 
       {/* Achievements */}
-      <Card className="p-6 sm:p-7">
-        <h2 className="text-lg font-bold">Achievements</h2>
+      <Card className="card-lit p-6 sm:p-7">
+        <h2 className="font-display text-xl">Achievements</h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {ACHIEVEMENTS.map((a) => {
             const isUnlocked = a.unlockedOn !== null;
@@ -208,7 +222,7 @@ export default function JourneyPage() {
 }
 
 /** Simple generative tree — branches and leaves scale with programme progress. */
-function HealingTree({ progress }: { progress: number }) {
+function HealingTree({ progress, color }: { progress: number; color: string }) {
   const leafCount = Math.round(progress * 22);
   const leaves = Array.from({ length: leafCount }, (_, i) => {
     // Deterministic placement so server and client agree.
@@ -222,7 +236,12 @@ function HealingTree({ progress }: { progress: number }) {
   });
 
   return (
-    <svg viewBox="0 0 220 220" className="w-56" role="img" aria-label={`Healing tree, ${Math.round(progress * 100)} percent grown`}>
+    <svg
+      viewBox="0 0 220 220"
+      className="w-56"
+      role="img"
+      aria-label={`Growth tree, ${Math.round(progress * 100)} percent grown`}
+    >
       <defs>
         <linearGradient id="trunk" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#8a6a4a" />
@@ -242,7 +261,7 @@ function HealingTree({ progress }: { progress: number }) {
           cx={leaf.cx}
           cy={leaf.cy}
           r={leaf.r}
-          fill={i % 4 === 0 ? "var(--color-brand-400)" : "var(--color-grow-400)"}
+          fill={i % 4 === 0 ? color : "var(--color-grow-400)"}
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.9 }}
           transition={{ duration: 0.5, delay: i * 0.045, ease: [0.16, 1, 0.3, 1] }}

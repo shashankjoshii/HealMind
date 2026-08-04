@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-ring";
 import { Textarea } from "@/components/ui/input";
-import { TODAY_MISSION, USER, phaseForDay } from "@/lib/mock-data";
+import { TODAY_MISSION, USER, activePath } from "@/lib/mock-data";
+import { phaseForDay } from "@/lib/paths";
 
 export default function TodayPage() {
   const [step, setStep] = useState(0);
@@ -18,7 +19,8 @@ export default function TodayPage() {
 
   const steps = TODAY_MISSION.steps;
   const current = steps[step];
-  const phase = phaseForDay(TODAY_MISSION.day);
+  const path = activePath();
+  const phase = phaseForDay(path, TODAY_MISSION.day);
   const isLast = step === steps.length - 1;
 
   function next() {

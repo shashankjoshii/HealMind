@@ -13,9 +13,11 @@ import { cn } from "@/lib/utils";
 
 const PROMPTS = [
   "What did today ask of you that you didn't expect?",
-  "Write the thing you'd say to them if they could hear it, knowing they can't.",
   "What's one way you were kind to yourself today?",
   "What are you afraid will still be true in a year?",
+  "What did you avoid today, and what did it cost you?",
+  "Write down the harshest thing you said to yourself this week.",
+  "What's one thing that went better than you predicted?",
 ];
 
 export default function JournalPage() {
@@ -74,7 +76,7 @@ export default function JournalPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+          <h1 className="font-display text-display-sm">
             Journal
           </h1>
           <p className="mt-2 text-muted">

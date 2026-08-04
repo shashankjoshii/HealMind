@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -9,17 +9,25 @@ const jakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+/** Display face for headlines only — body copy stays on Jakarta. */
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  display: "swap",
+  axes: ["SOFT", "WONK"],
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://healmine.app"),
   title: {
-    default: "HealMind — Heal from heartbreak, one day at a time",
+    default: "HealMind — Mental health that actually fits your life",
     template: "%s · HealMind",
   },
   description:
-    "A science-backed 90-day recovery journey to help you heal from heartbreak, rebuild confidence, and move forward.",
+    "Structured, science-backed programmes for anxiety, burnout, low mood, sleep, self-esteem and heartbreak. Pick your path and start today.",
   openGraph: {
     title: "HealMind",
-    description: "A structured 90-day breakup recovery programme.",
+    description: "Structured mental health programmes that fit your actual life.",
     url: "https://healmine.app",
     siteName: "HealMind",
     type: "website",
@@ -52,7 +60,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${jakarta.variable} h-full`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${jakarta.variable} ${fraunces.variable} h-full`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

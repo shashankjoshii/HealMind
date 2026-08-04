@@ -5,7 +5,7 @@ import {
   Features,
   Footer,
   HowItWorks,
-  JourneyTimeline,
+  PathExplorer,
   Pricing,
   Testimonials,
 } from "@/components/marketing/sections";
@@ -16,9 +16,9 @@ export default function LandingPage() {
       <MarketingNav />
       <main id="main">
         <Hero />
+        <PathExplorer />
         <HowItWorks />
         <Features />
-        <JourneyTimeline />
         <Testimonials />
         <Pricing />
         <CrisisBanner />

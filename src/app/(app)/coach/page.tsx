@@ -7,15 +7,15 @@ import { Info, Phone, Send, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CRISIS_RESPONSE, detectCrisis } from "@/lib/safety";
+import { crisisResponseFor, detectCrisisCategory } from "@/lib/safety";
 import type { ChatMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const OPENERS = [
-  "I keep wanting to text them",
   "I can't sleep — my brain won't stop",
-  "I feel like I wasted years",
-  "Everyone says I should be over it by now",
+  "I'm dreading work tomorrow",
+  "I feel like a fraud",
+  "I don't have the energy for anything",
 ];
 
 /**
@@ -25,26 +25,33 @@ const OPENERS = [
  */
 const REPLIES: { match: RegExp; content: string; suggestions?: string[] }[] = [
   {
-    match: /text|message|call them|contact|reach out/i,
+    match: /sleep|3am|awake|insomnia|night|tired/i,
     content:
-      "That urge is really common, and it's not a character flaw — it's your brain looking for the thing that used to regulate it.\n\nCan I ask what you're hoping happens if you send it? Not to talk you out of it. Just to make it a decision instead of a reflex.",
-    suggestions: ["I want them to miss me", "I want closure", "I don't know, honestly"],
-  },
-  {
-    match: /sleep|3am|awake|insomnia|night/i,
-    content:
-      "Nights are the worst part for most people. There's nothing to distract you, and the same three thoughts get louder.\n\nOne thing that genuinely helps: get out of bed. Lying there rehearsing it teaches your brain that bed is where you ruminate. Ten minutes somewhere else, dim light, then go back.\n\nWant to try a breathing pacer with me?",
+      "Nights are the worst part for a lot of people. There's nothing to distract you, and the same three thoughts get louder.\n\nOne thing that genuinely helps: get out of bed. Lying there rehearsing it teaches your brain that bed is where you ruminate. Ten minutes somewhere else, dim light, no phone, then go back.\n\nWant to try a breathing pacer with me?",
     suggestions: ["Yes, let's breathe", "What else helps?"],
   },
   {
-    match: /waste|years|time|throw(n)? away/i,
+    match: /work|job|boss|burn|exhaust|overwhelm|deadline/i,
     content:
-      "I hear that a lot, and I want to gently push on it — because \"wasted\" assumes the only value of a relationship is whether it lasted.\n\nYou learned things about what you need and what you won't accept again. That's not nothing, even though it cost more than it should have.\n\nWhat's one thing you know about yourself now that you didn't three years ago?",
+      "That sounds like a lot to be carrying, and the fact that it follows you home is usually the sign that the load itself is the problem — not your ability to handle it.\n\nCan I ask a blunt question? If one thing came off your plate this week, what would you actually pick?",
+    suggestions: ["I can't drop anything", "I don't know where to start"],
   },
   {
-    match: /over it|should be|too long|why am i still/i,
+    match: /fraud|imposter|not good enough|deserve|failure|useless/i,
     content:
-      "There's no schedule for this, and the people saying that usually mean well and have no idea what they're talking about.\n\nGrief roughly tracks the depth of the attachment, not the length of the relationship or how reasonable the ending was. You're not behind.\n\nWho's been saying it? Sometimes that pressure is the thing that needs addressing, more than the grief itself.",
+      "That feeling is incredibly common in people who are, by any external measure, doing fine — which is part of what makes it so convincing and so unfair.\n\nHere's what I'd ask: what evidence would actually change your mind? If the honest answer is \"nothing would\", that tells you it's a belief you're holding rather than a conclusion you reached.\n\nWhat would you need to see?",
+  },
+  {
+    match: /energy|motivat|can'?t be bothered|pointless|flat|empty|numb/i,
+    content:
+      "When everything feels flat, waiting to feel motivated is the trap — the motivation tends to arrive after the action, not before it.\n\nSo let's go absurdly small. Not \"sort my life out\". Something like putting three things in the bin, or standing outside for two minutes.\n\nWhat's the smallest version of something you've been putting off?",
+    suggestions: ["That still feels like too much", "Okay, I'll try"],
+  },
+  {
+    match: /anxious|anxiety|panic|worry|scared|nervous|spiral/i,
+    content:
+      "Thank you for saying it plainly. Anxiety gets louder when it's vague, so naming it is genuinely useful rather than just a nice idea.\n\nTwo questions, if you're up for it: where do you feel it in your body right now, and what specifically are you predicting will happen?\n\nVague dread can't be tested. A specific prediction can.",
+    suggestions: ["Let's do a grounding exercise", "I don't know what I'm afraid of"],
   },
 ];
 
@@ -94,14 +101,17 @@ export default function CoachPage() {
 
     // Safety check runs before anything else, and short-circuits the normal
     // reply path entirely — the coach does not counsel through a crisis.
-    if (detectCrisis(trimmed)) {
+    // Routing by category matters: an abuse disclosure needs the domestic
+    // abuse line, not a generic suicide hotline.
+    const crisis = detectCrisisCategory(trimmed);
+    if (crisis) {
       setMessages((m) => [
         ...m,
         {
           id: crypto.randomUUID(),
           role: "coach",
           createdAt: new Date().toISOString(),
-          content: CRISIS_RESPONSE,
+          content: crisisResponseFor(crisis),
           safety: "crisis",
         },
       ]);
@@ -119,7 +129,7 @@ export default function CoachPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+          <h1 className="font-display text-display-sm">
             Your coach
           </h1>
           <p className="mt-2 text-muted">
