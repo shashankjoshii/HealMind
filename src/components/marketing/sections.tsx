@@ -11,6 +11,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { PATHS } from "@/lib/paths";
 import { cn } from "@/lib/utils";
 
@@ -94,7 +95,7 @@ export function PathExplorer() {
                     : undefined
                 }
               >
-                <span className="text-2xl">{p.emoji}</span>
+                <Icon name={p.icon} className="h-6 w-6 shrink-0" />
                 <span className="min-w-0">
                   <span className="block text-[0.9375rem] font-bold leading-tight">
                     {p.name}
@@ -126,7 +127,7 @@ export function PathExplorer() {
                   backgroundImage: `linear-gradient(135deg, ${path.gradient[0]}, ${path.gradient[1]})`,
                 }}
               >
-                <span className="text-4xl">{path.emoji}</span>
+                <Icon name={path.icon} className="h-9 w-9" />
                 <h3 className="mt-4 font-display text-3xl sm:text-4xl">{path.name}</h3>
                 <p className="mt-3 max-w-xl leading-relaxed text-white/85">
                   {path.description}

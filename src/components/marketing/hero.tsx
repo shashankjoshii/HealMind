@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { PATHS } from "@/lib/paths";
 import { cn } from "@/lib/utils";
 
@@ -151,9 +152,13 @@ export function Hero() {
                   : undefined
               }
             >
-              <span className="block text-3xl transition-transform duration-300 group-hover:scale-115">
-                {path.emoji}
-              </span>
+              <Icon
+                name={path.icon}
+                className={cn(
+                  "mx-auto block h-7 w-7 transition-transform duration-300 group-hover:scale-115",
+                  hovered === i && "text-white",
+                )}
+              />
               <span
                 className={cn(
                   "mt-2.5 block text-[0.8125rem] font-bold leading-tight transition-colors",

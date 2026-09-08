@@ -5,6 +5,7 @@ import { Check, Lock, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { ProgressBar } from "@/components/ui/progress-ring";
 import { PATHS } from "@/lib/paths";
 import { useAppStore } from "@/lib/store";
@@ -60,7 +61,7 @@ export default function PathsPage() {
                   }}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <span className="text-4xl">{path.emoji}</span>
+                    <Icon name={path.icon} className="h-9 w-9" />
                     {isActive && (
                       <span className="rounded-full bg-white/25 px-3 py-1 text-xs font-bold backdrop-blur">
                         Active

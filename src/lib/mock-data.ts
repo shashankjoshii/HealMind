@@ -17,13 +17,13 @@ import { seeded } from "./prng";
 export { PATHS, PATH_BY_KEY, phaseForDay } from "./paths";
 
 export const MOOD_OPTIONS: MoodOption[] = [
-  { key: "awful", emoji: "😞", label: "Awful", score: 1, color: "#f83b3b" },
-  { key: "low", emoji: "😔", label: "Low", score: 2, color: "#ff9d9d" },
-  { key: "numb", emoji: "😶", label: "Numb", score: 3, color: "#b0abcd" },
-  { key: "okay", emoji: "🙂", label: "Okay", score: 4, color: "#ffb547" },
-  { key: "hopeful", emoji: "🌤️", label: "Hopeful", score: 5, color: "#5fb0fc" },
-  { key: "good", emoji: "😊", label: "Good", score: 6, color: "#47bd8b" },
-  { key: "great", emoji: "✨", label: "Great", score: 7, color: "#24a271" },
+  { key: "awful", icon: "frown", label: "Awful", score: 1, color: "#f83b3b" },
+  { key: "low", icon: "annoyed", label: "Low", score: 2, color: "#ff9d9d" },
+  { key: "numb", icon: "ghost", label: "Numb", score: 3, color: "#b0abcd" },
+  { key: "okay", icon: "smile", label: "Okay", score: 4, color: "#ffb547" },
+  { key: "hopeful", icon: "cloud-sun", label: "Hopeful", score: 5, color: "#5fb0fc" },
+  { key: "good", icon: "smile-plus", label: "Good", score: 6, color: "#47bd8b" },
+  { key: "great", icon: "sparkles", label: "Great", score: 7, color: "#24a271" },
 ];
 
 export const MOOD_BY_KEY = Object.fromEntries(
@@ -331,10 +331,10 @@ export const MISSIONS_BY_PATH: Record<PathKey, DailyMission> = {
 export const TODAY_MISSION = MISSIONS_BY_PATH[ACTIVE_PATH];
 
 export const HABITS: Habit[] = [
-  { id: "h1", name: "Breathwork", icon: "🌬️", week: [true, true, false, true, true, true, false], streak: 3 },
-  { id: "h2", name: "Movement", icon: "🚶", week: [true, false, true, true, false, true, true], streak: 2 },
-  { id: "h3", name: "No screens in bed", icon: "🌙", week: [false, true, true, true, true, false, true], streak: 1 },
-  { id: "h4", name: "Water", icon: "💧", week: [true, true, true, true, true, true, true], streak: 12 },
+  { id: "h1", name: "Breathwork", icon: "wind", week: [true, true, false, true, true, true, false], streak: 3 },
+  { id: "h2", name: "Movement", icon: "footprints", week: [true, false, true, true, false, true, true], streak: 2 },
+  { id: "h3", name: "No screens in bed", icon: "moon", week: [false, true, true, true, true, false, true], streak: 1 },
+  { id: "h4", name: "Water", icon: "droplet", week: [true, true, true, true, true, true, true], streak: 12 },
 ];
 
 export const JOURNAL_ENTRIES: JournalEntry[] = [
@@ -386,14 +386,14 @@ export const JOURNAL_ENTRIES: JournalEntry[] = [
 ];
 
 export const ACHIEVEMENTS: Achievement[] = [
-  { id: "a1", name: "First Step", description: "Completed day 1", icon: "🌱", unlockedOn: 1, xp: 50 },
-  { id: "a2", name: "One Week Down", description: "7-day streak", icon: "🔥", unlockedOn: 7, xp: 150 },
-  { id: "a3", name: "Deep Diver", description: "Wrote 10 journal entries", icon: "📓", unlockedOn: 16, xp: 200 },
-  { id: "a4", name: "Still Here", description: "Returned after a missed day", icon: "🤍", unlockedOn: 18, xp: 120 },
-  { id: "a5", name: "Phase One", description: "Finished your first phase", icon: "🕊️", unlockedOn: 12, xp: 300 },
-  { id: "a6", name: "Explorer", description: "Started a second path", icon: "🧭", unlockedOn: 21, xp: 250 },
-  { id: "a7", name: "Halfway", description: "Reached the midpoint", icon: "⛰️", unlockedOn: null, xp: 400 },
-  { id: "a8", name: "Full Circle", description: "Completed a whole path", icon: "🌅", unlockedOn: null, xp: 1000 },
+  { id: "a1", name: "First Step", description: "Completed day 1", icon: "sprout", unlockedOn: 1, xp: 50 },
+  { id: "a2", name: "One Week Down", description: "7-day streak", icon: "flame", unlockedOn: 7, xp: 150 },
+  { id: "a3", name: "Deep Diver", description: "Wrote 10 journal entries", icon: "notebook-pen", unlockedOn: 16, xp: 200 },
+  { id: "a4", name: "Still Here", description: "Returned after a missed day", icon: "heart", unlockedOn: 18, xp: 120 },
+  { id: "a5", name: "Phase One", description: "Finished your first phase", icon: "bird", unlockedOn: 12, xp: 300 },
+  { id: "a6", name: "Explorer", description: "Started a second path", icon: "compass", unlockedOn: 21, xp: 250 },
+  { id: "a7", name: "Halfway", description: "Reached the midpoint", icon: "mountain", unlockedOn: null, xp: 400 },
+  { id: "a8", name: "Full Circle", description: "Completed a whole path", icon: "sunrise", unlockedOn: null, xp: 1000 },
 ];
 
 export const MEDITATIONS: Meditation[] = [

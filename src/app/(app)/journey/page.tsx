@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Check, Lock, Star, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Icon } from "@/components/ui/icon";
 import { PATH_BY_KEY, phaseForDay } from "@/lib/paths";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -30,7 +31,7 @@ export default function JourneyPage() {
     <div className="space-y-6">
       <header>
         <p className="flex items-center gap-2 text-sm font-semibold text-muted">
-          <span>{path.emoji}</span>
+          <Icon name={path.icon} className="h-4 w-4" />
           {path.name}
         </p>
         <h1 className="mt-2 font-display text-display-sm">Your journey</h1>
@@ -212,9 +213,10 @@ export default function JourneyPage() {
                     : "border-dashed border-[var(--border)] opacity-45",
                 )}
               >
-                <span className={cn("text-3xl", !isUnlocked && "grayscale")}>
-                  {a.icon}
-                </span>
+                <Icon
+                  name={a.icon}
+                  className={cn("mx-auto h-8 w-8", !isUnlocked && "text-[var(--text-subtle)]")}
+                />
                 <p className="mt-2.5 font-bold">{a.name}</p>
                 <p className="mt-1 text-xs leading-relaxed text-subtle">
                   {a.description}

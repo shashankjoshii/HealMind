@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import type { Habit } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -7,8 +8,8 @@ const DAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
 export function HabitRow({ habit }: { habit: Habit }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-muted)] text-base">
-        {habit.icon}
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-muted)]">
+        <Icon name={habit.icon} className="h-4 w-4" />
       </span>
 
       <div className="min-w-0 flex-1">

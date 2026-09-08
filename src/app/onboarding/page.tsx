@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Logo } from "@/components/marketing/nav";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Slider } from "@/components/ui/slider";
 import { ProgressBar, ProgressRing } from "@/components/ui/progress-ring";
 import { MOOD_OPTIONS } from "@/lib/mock-data";
@@ -162,7 +163,7 @@ export default function OnboardingPage() {
                             : undefined
                         }
                       >
-                        <span className="text-3xl">{p.emoji}</span>
+                        <Icon name={p.icon} className="h-7 w-7" />
                         <p className="mt-3 font-bold">{p.name}</p>
                         <p
                           className={cn(
@@ -306,7 +307,7 @@ function Result({
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="text-center"
       >
-        <span className="text-5xl">{path.emoji}</span>
+        <Icon name={path.icon} className="mx-auto h-12 w-12" />
         <h1 className="mt-5 font-display text-display-sm">Your plan is ready</h1>
         <p className="mt-3 leading-relaxed text-muted">
           {path.totalDays} days on the {path.name.toLowerCase()} path. This is

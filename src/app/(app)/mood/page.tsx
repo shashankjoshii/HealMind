@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/input";
 import { MetricsChart, MoodTrendChart, SleepChart } from "@/components/app/mood-chart";
@@ -104,7 +105,7 @@ export default function MoodPage() {
                     : "border-transparent bg-[var(--surface-muted)] hover:scale-[1.03]",
                 )}
               >
-                <span className="text-3xl">{option.emoji}</span>
+                <Icon name={option.icon} className="h-7 w-7" />
                 <span className="text-xs font-semibold">{option.label}</span>
               </button>
             );

@@ -6,6 +6,7 @@ import { Lock, Plus, Search, Unlock, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Input, Textarea } from "@/components/ui/input";
 import { MOOD_BY_KEY, MOOD_OPTIONS } from "@/lib/mock-data";
 import { useAppStore } from "@/lib/store";
@@ -126,7 +127,7 @@ export default function JournalPage() {
                         : "border-transparent bg-[var(--surface-muted)]",
                     )}
                   >
-                    <span>{m.emoji}</span>
+                    <Icon name={m.icon} className="h-4 w-4" />
                     {m.label}
                   </button>
                 ))}
@@ -172,7 +173,7 @@ export default function JournalPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2.5">
-                      <span className="text-xl">{mood.emoji}</span>
+                      <Icon name={mood.icon} className="h-5 w-5" />
                       <h2 className="text-lg font-bold">{entry.title}</h2>
                       {entry.locked && (
                         <Badge tone="neutral">

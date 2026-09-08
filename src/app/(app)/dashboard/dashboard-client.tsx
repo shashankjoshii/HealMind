@@ -8,6 +8,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { ProgressBar, ProgressRing } from "@/components/ui/progress-ring";
 import { MoodTrendChart } from "@/components/app/mood-chart";
 import { HabitRow } from "@/components/app/habit-row";
@@ -62,7 +63,7 @@ export default function DashboardClient() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="flex items-center gap-2 text-sm font-semibold text-muted">
-            <span>{path.emoji}</span>
+            <Icon name={path.icon} className="h-4 w-4" />
             {path.name} · Day {currentDay} of {path.totalDays}
           </p>
           <h1 className="mt-2 font-display text-display-sm">
@@ -184,7 +185,7 @@ export default function DashboardClient() {
         {/* Quick actions */}
         <QuickAction
           href="/mood"
-          icon={<span className="text-2xl">{latestMood?.emoji ?? "🙂"}</span>}
+          icon={<Icon name={latestMood?.icon ?? "smile"} className="h-6 w-6" />}
           title="Log your mood"
           subtitle={latestMood ? `Last: ${latestMood.label}` : "No check-ins yet"}
         />
@@ -270,13 +271,13 @@ export default function DashboardClient() {
                 key={a.id}
                 title={`${a.name} — ${a.description}`}
                 className={
-                  "grid h-10 w-10 place-items-center rounded-2xl text-lg " +
+                  "grid h-10 w-10 place-items-center rounded-2xl " +
                   (a.unlockedOn !== null
                     ? "bg-[var(--surface-muted)]"
-                    : "bg-[var(--surface-inset)] opacity-30 grayscale")
+                    : "bg-[var(--surface-inset)] text-[var(--text-subtle)] opacity-30")
                 }
               >
-                {a.icon}
+                <Icon name={a.icon} className="h-5 w-5" />
               </span>
             ))}
           </div>

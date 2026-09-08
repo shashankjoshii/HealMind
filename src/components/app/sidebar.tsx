@@ -8,6 +8,7 @@ import {
   Moon, NotebookPen, Route, Settings, Smile, Sun, Users, X,
 } from "lucide-react";
 import { Logo } from "@/components/marketing/nav";
+import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/components/theme-provider";
 import { PATH_BY_KEY } from "@/lib/paths";
 import { useAppStore } from "@/lib/store";
@@ -88,8 +89,9 @@ export function Sidebar() {
           </span>
           <div className="min-w-0">
             <p className="truncate text-sm font-bold">{profile.name}</p>
-            <p className="truncate text-xs text-subtle">
-              {path.emoji} Day {currentDay} · Lvl {profile.level}
+            <p className="flex items-center gap-1 truncate text-xs text-subtle">
+              <Icon name={path.icon} className="h-3 w-3 shrink-0" />
+              Day {currentDay} · Lvl {profile.level}
             </p>
           </div>
         </div>

@@ -6,6 +6,8 @@
  * backend means implementing the same shapes and nothing in the UI changes.
  */
 
+import type { IconKey } from "./icons";
+
 export type MoodKey =
   | "awful"
   | "low"
@@ -17,7 +19,8 @@ export type MoodKey =
 
 export interface MoodOption {
   key: MoodKey;
-  emoji: string;
+  /** Resolved to a component via src/lib/icons.ts — never a raw emoji. */
+  icon: IconKey;
   label: string;
   /** 1–7, used for charting. */
   score: number;
@@ -61,7 +64,8 @@ export interface Path {
   description: string;
   /** Short second-person symptom lines — "pick the one that sounds like you". */
   signals: string[];
-  emoji: string;
+  /** Resolved to a component via src/lib/icons.ts — never a raw emoji. */
+  icon: IconKey;
   /** Two hex stops for this path's gradient. */
   gradient: [string, string];
   accent: string;
@@ -131,7 +135,8 @@ export interface Achievement {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  /** Resolved to a component via src/lib/icons.ts — never a raw emoji. */
+  icon: IconKey;
   unlockedOn: number | null; // day number, null = still locked
   xp: number;
 }
@@ -189,7 +194,8 @@ export interface ChatMessage {
 export interface Habit {
   id: string;
   name: string;
-  icon: string;
+  /** Resolved to a component via src/lib/icons.ts — never a raw emoji. */
+  icon: IconKey;
   /** Days of the last 7 on which this was completed, most recent last. */
   week: boolean[];
   streak: number;
