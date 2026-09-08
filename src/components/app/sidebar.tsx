@@ -9,7 +9,8 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/marketing/nav";
 import { useTheme } from "@/components/theme-provider";
-import { USER, activePath } from "@/lib/mock-data";
+import { PATH_BY_KEY } from "@/lib/paths";
+import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -29,6 +30,10 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const profile = useAppStore((s) => s.profile);
+  const programmes = useAppStore((s) => s.programmes);
+  const path = PATH_BY_KEY[profile.activePath];
+  const currentDay = programmes[profile.activePath]?.currentDay ?? 1;
 
   const nav = (
     <>
@@ -79,12 +84,12 @@ export function Sidebar() {
 
         <div className="mt-3 flex items-center gap-3 rounded-2xl bg-[var(--surface-muted)] p-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full gradient-brand font-bold text-white">
-            {USER.name[0]}
+            {profile.name[0]}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold">{USER.name}</p>
+            <p className="truncate text-sm font-bold">{profile.name}</p>
             <p className="truncate text-xs text-subtle">
-              {activePath().emoji} Day {USER.currentDay} · Lvl {USER.level}
+              {path.emoji} Day {currentDay} · Lvl {profile.level}
             </p>
           </div>
         </div>

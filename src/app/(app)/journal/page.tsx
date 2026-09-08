@@ -7,8 +7,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
-import { JOURNAL_ENTRIES, MOOD_BY_KEY, MOOD_OPTIONS } from "@/lib/mock-data";
-import type { JournalEntry, MoodKey } from "@/lib/types";
+import { MOOD_BY_KEY, MOOD_OPTIONS } from "@/lib/mock-data";
+import { useAppStore } from "@/lib/store";
+import { deriveJournalEntries, selectJournalEntries } from "@/lib/store/selectors";
+import type { MoodKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const PROMPTS = [
@@ -21,7 +23,9 @@ const PROMPTS = [
 ];
 
 export default function JournalPage() {
-  const [entries, setEntries] = useState<JournalEntry[]>(JOURNAL_ENTRIES);
+  const journalEntries = useAppStore(selectJournalEntries);
+  const addEntry = useAppStore((s) => s.addEntry);
+  const entries = useMemo(() => deriveJournalEntries(journalEntries), [journalEntries]);
   const [query, setQuery] = useState("");
   const [composing, setComposing] = useState(false);
   const [unlocked, setUnlocked] = useState<Set<string>>(new Set());
@@ -45,18 +49,13 @@ export default function JournalPage() {
 
   function save() {
     if (!draftBody.trim()) return;
-    setEntries((prev) => [
-      {
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        title: draftTitle.trim() || "Untitled",
-        body: draftBody.trim(),
-        mood: draftMood,
-        tags: [],
-        locked: false,
-      },
-      ...prev,
-    ]);
+    addEntry({
+      title: draftTitle.trim() || "Untitled",
+      body: draftBody.trim(),
+      mood: draftMood,
+      tags: [],
+      locked: false,
+    });
     setDraftTitle("");
     setDraftBody("");
     setDraftMood("okay");

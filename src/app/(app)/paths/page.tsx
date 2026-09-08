@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Lock, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -8,18 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProgressBar } from "@/components/ui/progress-ring";
 import { PATHS } from "@/lib/paths";
-import { USER } from "@/lib/mock-data";
-import type { PathKey } from "@/lib/types";
+import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export default function PathsPage() {
-  const [active, setActive] = useState<PathKey>(USER.activePath);
-  const [enrolled, setEnrolled] = useState<PathKey[]>(USER.enrolledPaths);
-
-  function switchTo(key: PathKey) {
-    setActive(key);
-    if (!enrolled.includes(key)) setEnrolled((e) => [...e, key]);
-  }
+  const active = useAppStore((s) => s.profile.activePath);
+  const enrolled = useAppStore((s) => s.profile.enrolledPaths);
+  const programmes = useAppStore((s) => s.programmes);
+  const switchPath = useAppStore((s) => s.switchPath);
 
   return (
     <div className="space-y-6">
@@ -42,8 +37,7 @@ export default function PathsPage() {
         {PATHS.map((path, i) => {
           const isActive = path.key === active;
           const isEnrolled = enrolled.includes(path.key);
-          // Only the currently active path has real progress in this mock.
-          const day = isActive ? USER.currentDay : isEnrolled ? 8 : 0;
+          const day = programmes[path.key]?.currentDay ?? 0;
           const pct = (day / path.totalDays) * 100;
 
           return (
@@ -122,7 +116,7 @@ export default function PathsPage() {
                       <Button
                         variant={isEnrolled ? "outline" : "primary"}
                         className="w-full"
-                        onClick={() => switchTo(path.key)}
+                        onClick={() => switchPath(path.key)}
                       >
                         {isEnrolled ? (
                           <>Switch to this path</>

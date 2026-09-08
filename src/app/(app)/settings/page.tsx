@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Download, Moon, Shield, Sun, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/components/theme-provider";
-import { USER } from "@/lib/mock-data";
+import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 function Toggle({
@@ -51,19 +51,37 @@ function Toggle({
 }
 
 export default function SettingsPage() {
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
-  const [notifications, setNotifications] = useState({
-    dailyMission: true,
-    moodReminder: true,
-    journalNudge: false,
-    weeklyReport: true,
-    communityReplies: false,
-  });
-  const [privacy, setPrivacy] = useState({
-    lockJournal: true,
-    anonymousCommunity: true,
-    analyticsOptIn: false,
-  });
+  const profile = useAppStore((s) => s.profile);
+  const programmes = useAppStore((s) => s.programmes);
+  const prefs = useAppStore((s) => s.prefs);
+  const setPref = useAppStore((s) => s.setPref);
+  const exportJson = useAppStore((s) => s.exportJson);
+  const clearEverything = useAppStore((s) => s.clearEverything);
+  const loadSampleData = useAppStore((s) => s.loadSampleData);
+
+  const currentDay = programmes[profile.activePath]?.currentDay ?? 1;
+  const notifications = prefs.notifications;
+
+  function handleExport() {
+    const blob = new Blob([exportJson()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "healmind-export.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleDelete() {
+    const confirmed = window.confirm(
+      "This permanently deletes your journal, mood history and progress. This can't be undone. Continue?",
+    );
+    if (!confirmed) return;
+    clearEverything();
+    router.push("/onboarding");
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -77,12 +95,12 @@ export default function SettingsPage() {
       <Card className="p-6">
         <div className="flex items-center gap-4">
           <span className="grid h-14 w-14 place-items-center rounded-full gradient-brand text-xl font-bold text-white">
-            {USER.name[0]}
+            {profile.name[0]}
           </span>
           <div>
-            <p className="text-lg font-bold">{USER.name}</p>
+            <p className="text-lg font-bold">{profile.name}</p>
             <p className="text-sm text-subtle">
-              Joined {new Date(USER.joinedOn).toLocaleDateString("en-GB", { month: "long", year: "numeric" })} · Day {USER.currentDay}
+              Joined {new Date(profile.joinedOn).toLocaleDateString("en-GB", { month: "long", year: "numeric" })} · Day {currentDay}
             </p>
           </div>
           <Badge tone="brand" className="ml-auto">Free plan</Badge>
@@ -111,11 +129,11 @@ export default function SettingsPage() {
           Gentle by default. Nothing guilt-trips you for missing a day.
         </p>
         <div className="mt-2 divide-y divide-[var(--border)]">
-          <Toggle label="Daily mission reminder" description="One nudge in the morning." checked={notifications.dailyMission} onChange={(v) => setNotifications((n) => ({ ...n, dailyMission: v }))} />
-          <Toggle label="Mood check-in" description="An evening prompt to log how the day went." checked={notifications.moodReminder} onChange={(v) => setNotifications((n) => ({ ...n, moodReminder: v }))} />
-          <Toggle label="Journal nudge" checked={notifications.journalNudge} onChange={(v) => setNotifications((n) => ({ ...n, journalNudge: v }))} />
-          <Toggle label="Weekly report" description="A Sunday summary of your week." checked={notifications.weeklyReport} onChange={(v) => setNotifications((n) => ({ ...n, weeklyReport: v }))} />
-          <Toggle label="Community replies" checked={notifications.communityReplies} onChange={(v) => setNotifications((n) => ({ ...n, communityReplies: v }))} />
+          <Toggle label="Daily mission reminder" description="One nudge in the morning." checked={notifications.dailyMission} onChange={(v) => setPref("notifications", { ...notifications, dailyMission: v })} />
+          <Toggle label="Mood check-in" description="An evening prompt to log how the day went." checked={notifications.moodReminder} onChange={(v) => setPref("notifications", { ...notifications, moodReminder: v })} />
+          <Toggle label="Journal nudge" checked={notifications.journalNudge} onChange={(v) => setPref("notifications", { ...notifications, journalNudge: v })} />
+          <Toggle label="Weekly report" description="A Sunday summary of your week." checked={notifications.weeklyReport} onChange={(v) => setPref("notifications", { ...notifications, weeklyReport: v })} />
+          <Toggle label="Community replies" checked={notifications.communityReplies} onChange={(v) => setPref("notifications", { ...notifications, communityReplies: v })} />
         </div>
       </Card>
 
@@ -125,9 +143,9 @@ export default function SettingsPage() {
           Privacy
         </h2>
         <div className="mt-2 divide-y divide-[var(--border)]">
-          <Toggle label="Require unlock for journal" description="Ask for your device passcode before showing entries." checked={privacy.lockJournal} onChange={(v) => setPrivacy((p) => ({ ...p, lockJournal: v }))} />
-          <Toggle label="Stay anonymous in community" description="Post under a generated username only." checked={privacy.anonymousCommunity} onChange={(v) => setPrivacy((p) => ({ ...p, anonymousCommunity: v }))} />
-          <Toggle label="Share anonymised usage data" description="Off by default. Helps improve the programme; never includes journal content." checked={privacy.analyticsOptIn} onChange={(v) => setPrivacy((p) => ({ ...p, analyticsOptIn: v }))} />
+          <Toggle label="Require unlock for journal" description="Ask for your device passcode before showing entries." checked={prefs.lockJournal} onChange={(v) => setPref("lockJournal", v)} />
+          <Toggle label="Stay anonymous in community" description="Post under a generated username only." checked={prefs.anonymousCommunity} onChange={(v) => setPref("anonymousCommunity", v)} />
+          <Toggle label="Share anonymised usage data" description="Off by default. Helps improve the programme; never includes journal content." checked={prefs.analyticsOptIn} onChange={(v) => setPref("analyticsOptIn", v)} />
         </div>
       </Card>
 
@@ -138,14 +156,21 @@ export default function SettingsPage() {
           like, in a format you can actually read.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button variant="secondary">
+          <Button variant="secondary" onClick={handleExport}>
             <Download className="h-4 w-4" />
             Export my data
+          </Button>
+          <Button variant="ghost" onClick={() => loadSampleData()}>
+            Load sample data
           </Button>
           <Link href="/crisis">
             <Button variant="ghost">Crisis resources</Button>
           </Link>
         </div>
+        <p className="mt-2 text-xs text-subtle">
+          &ldquo;Load sample data&rdquo; is for trying the app out — it replaces
+          everything above with the seeded demo content.
+        </p>
       </Card>
 
       <Card className="border-soft-200 p-6 dark:border-soft-900">
@@ -154,7 +179,7 @@ export default function SettingsPage() {
           Permanently removes your journal, mood history and progress. This
           can&rsquo;t be undone, and we don&rsquo;t keep a backup copy.
         </p>
-        <Button variant="danger" className="mt-4">
+        <Button variant="danger" className="mt-4" onClick={handleDelete}>
           <Trash2 className="h-4 w-4" />
           Delete my account
         </Button>

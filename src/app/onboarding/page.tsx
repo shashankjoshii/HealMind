@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Logo } from "@/components/marketing/nav";
@@ -9,9 +10,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { ProgressBar, ProgressRing } from "@/components/ui/progress-ring";
+import { MOOD_OPTIONS } from "@/lib/mock-data";
 import { PATHS, PATH_BY_KEY } from "@/lib/paths";
-import type { PathKey } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { useAppStore } from "@/lib/store";
+import type { MoodEntry, PathKey } from "@/lib/types";
+import { cn, todayKey } from "@/lib/utils";
 
 type ScaleStep = {
   id: string;
@@ -244,6 +247,33 @@ export default function OnboardingPage() {
   );
 }
 
+/**
+ * The onboarding sliders don't map 1:1 onto MoodEntry's fields — some
+ * (sleepHours) aren't asked at all, and some ("Calm", where high = settled)
+ * are inverted relative to how MoodEntry stores them (anxiety, where high =
+ * more anxious). This is the one real entry the plan calls for writing on
+ * onboarding completion; everything here is a documented best-effort
+ * conversion of what was actually asked, not a fabricated number.
+ */
+function deriveTodayMoodEntry(answers: Record<string, string | number>): MoodEntry {
+  const scale = (key: string) => (answers[key] as number) ?? 5;
+  const calm = scale("anxiety"); // slider is labelled "Calm": 1 = constantly anxious, 10 = settled
+  const anxiety = 11 - calm;
+  const moodScore = Math.min(7, Math.max(1, Math.round((scale("mood") / 10) * 7)));
+  const mood = (MOOD_OPTIONS.find((m) => m.score === moodScore) ?? MOOD_OPTIONS[3]).key;
+
+  return {
+    date: todayKey(),
+    mood,
+    energy: scale("energy"),
+    stress: anxiety, // no separate stress question asked — anxiety is the closest proxy
+    anxiety,
+    confidence: scale("self"),
+    sleepHours: 4 + (scale("sleep") / 10) * 4, // 4-8h, estimated from sleep quality (hours weren't asked)
+    sleepQuality: scale("sleep"),
+  };
+}
+
 function Result({
   pathKey,
   answers,
@@ -251,6 +281,8 @@ function Result({
   pathKey: PathKey;
   answers: Record<string, string | number>;
 }) {
+  const router = useRouter();
+  const completeOnboarding = useAppStore((s) => s.completeOnboarding);
   const path = PATH_BY_KEY[pathKey];
 
   // Composite of the five scale answers, floored so nobody sees a demoralising
@@ -260,6 +292,11 @@ function Result({
     scales.reduce((sum, key) => sum + ((answers[key] as number) ?? 5), 0) /
     scales.length;
   const score = Math.max(18, Math.round(raw * 10));
+
+  function start() {
+    completeOnboarding({ path: pathKey, today: deriveTodayMoodEntry(answers) });
+    router.push("/dashboard");
+  }
 
   return (
     <main id="main" className="mx-auto max-w-2xl px-5 py-14">
@@ -318,12 +355,10 @@ function Result({
           </div>
         </Card>
 
-        <Link href="/dashboard" className="mt-8 inline-block">
-          <Button size="lg" className="group">
-            Start day 1
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
-        </Link>
+        <Button size="lg" className="group mt-8" onClick={start}>
+          Start day 1
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </Button>
 
         <p className="mt-6 text-sm text-subtle">Free forever. No card needed.</p>
       </motion.div>

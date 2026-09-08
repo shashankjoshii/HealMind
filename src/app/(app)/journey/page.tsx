@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import { Check, Lock, Star, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ACHIEVEMENTS, USER, activePath } from "@/lib/mock-data";
-import { phaseForDay } from "@/lib/paths";
+import { PATH_BY_KEY, phaseForDay } from "@/lib/paths";
+import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 /** XP needed for the next level — flat curve keeps the maths readable. */
@@ -14,10 +14,17 @@ const XP_PER_LEVEL = 700;
 
 export default function JourneyPage() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  const path = activePath();
-  const currentPhase = phaseForDay(path, USER.currentDay);
-  const xpIntoLevel = USER.xp % XP_PER_LEVEL;
-  const unlocked = ACHIEVEMENTS.filter((a) => a.unlockedOn !== null);
+  const profile = useAppStore((s) => s.profile);
+  const programmes = useAppStore((s) => s.programmes);
+  const achievements = useAppStore((s) => s.achievements);
+
+  const path = PATH_BY_KEY[profile.activePath];
+  const programme = programmes[profile.activePath];
+  const currentDay = programme?.currentDay ?? 1;
+  const completedDays = programme?.completedDays ?? [];
+  const currentPhase = phaseForDay(path, currentDay);
+  const xpIntoLevel = profile.xp % XP_PER_LEVEL;
+  const unlocked = achievements.filter((a) => a.unlockedOn !== null);
 
   return (
     <div className="space-y-6">
@@ -28,8 +35,8 @@ export default function JourneyPage() {
         </p>
         <h1 className="mt-2 font-display text-display-sm">Your journey</h1>
         <p className="mt-2 text-muted">
-          {USER.completedDays.length} days completed.{" "}
-          {path.totalDays - USER.currentDay} to go.
+          {completedDays.length} days completed.{" "}
+          {path.totalDays - currentDay} to go.
         </p>
       </header>
 
@@ -43,11 +50,11 @@ export default function JourneyPage() {
         <div className="flex flex-wrap items-center justify-between gap-5">
           <div className="flex items-center gap-4">
             <span className="grid h-16 w-16 place-items-center rounded-3xl bg-white/20 font-display text-3xl backdrop-blur">
-              {USER.level}
+              {profile.level}
             </span>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-white/70">
-                Level {USER.level}
+                Level {profile.level}
               </p>
               <p className="font-display text-2xl">{currentPhase.name} phase</p>
             </div>
@@ -57,7 +64,7 @@ export default function JourneyPage() {
             <div>
               <p className="flex items-center gap-1.5 font-display text-3xl">
                 <Zap className="h-6 w-6" />
-                {USER.xp.toLocaleString()}
+                {profile.xp.toLocaleString()}
               </p>
               <p className="text-xs text-white/70">Total XP</p>
             </div>
@@ -80,14 +87,14 @@ export default function JourneyPage() {
           />
         </div>
         <p className="mt-2 text-xs text-white/70">
-          {XP_PER_LEVEL - xpIntoLevel} XP to level {USER.level + 1}
+          {XP_PER_LEVEL - xpIntoLevel} XP to level {profile.level + 1}
         </p>
       </Card>
 
       {/* Growth visual */}
       <Card className="card-lit flex flex-col items-center p-8">
         <HealingTree
-          progress={USER.currentDay / path.totalDays}
+          progress={currentDay / path.totalDays}
           color={path.gradient[0]}
         />
         <p className="mt-4 max-w-sm text-center text-sm leading-relaxed text-muted">
@@ -102,7 +109,7 @@ export default function JourneyPage() {
           { length: phase.endDay - phase.startDay + 1 },
           (_, i) => phase.startDay + i,
         );
-        const done = days.filter((d) => USER.completedDays.includes(d)).length;
+        const done = days.filter((d) => completedDays.includes(d)).length;
 
         return (
           <Card key={phase.key} className="card-lit p-6 sm:p-7">
@@ -126,22 +133,25 @@ export default function JourneyPage() {
 
             <div className="mt-5 flex flex-wrap gap-2">
               {days.map((day) => {
-                const isDone = USER.completedDays.includes(day);
-                const isToday = day === USER.currentDay;
-                const isLocked = day > USER.currentDay;
-                const isMissed = !isDone && !isToday && !isLocked;
+                const isDone = completedDays.includes(day);
+                const isToday = day === currentDay;
+                const isLocked = day > currentDay;
+                // Not "missed" — under the progress-based day model, a past
+                // day that isn't done yet is still just available, not
+                // penalised. See the currentDay semantics note in plan.md.
+                const isPending = !isDone && !isToday && !isLocked;
 
                 return (
                   <button
                     key={day}
                     onClick={() => setSelectedDay(selectedDay === day ? null : day)}
                     disabled={isLocked}
-                    aria-label={`Day ${day}${isDone ? ", completed" : isLocked ? ", locked" : isToday ? ", today" : ", missed"}`}
+                    aria-label={`Day ${day}${isDone ? ", completed" : isLocked ? ", locked" : isToday ? ", today" : ", not yet done"}`}
                     className={cn(
                       "grid h-10 w-10 place-items-center rounded-2xl text-sm font-bold transition-all duration-200",
                       isDone && "text-white hover:scale-110",
                       isToday && "scale-110 text-white ring-4 ring-brand-500/25",
-                      isMissed &&
+                      isPending &&
                         "bg-[var(--surface-inset)] text-subtle hover:scale-105",
                       isLocked &&
                         "cursor-not-allowed bg-[var(--surface-muted)] text-[var(--text-subtle)] opacity-50",
@@ -173,11 +183,11 @@ export default function JourneyPage() {
                   <div className="rounded-2xl bg-[var(--surface-muted)] p-5">
                     <p className="font-bold">Day {selectedDay}</p>
                     <p className="mt-1.5 text-sm leading-relaxed text-muted">
-                      {USER.completedDays.includes(selectedDay)
+                      {completedDays.includes(selectedDay)
                         ? "You completed this day. Your reflection is saved in your journal."
-                        : selectedDay === USER.currentDay
+                        : selectedDay === currentDay
                           ? "This is today. Your mission is waiting on the Today page."
-                          : "You missed this one. That's allowed — the programme doesn't reset."}
+                          : "Not done yet — that's fine. The programme doesn't reset, it just picks up where you left off."}
                     </p>
                   </div>
                 </motion.div>
@@ -190,7 +200,7 @@ export default function JourneyPage() {
       <Card className="card-lit p-6 sm:p-7">
         <h2 className="font-display text-xl">Achievements</h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {ACHIEVEMENTS.map((a) => {
+          {achievements.map((a) => {
             const isUnlocked = a.unlockedOn !== null;
             return (
               <div

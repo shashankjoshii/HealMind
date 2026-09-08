@@ -9,13 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/input";
 import { MetricsChart, MoodTrendChart, SleepChart } from "@/components/app/mood-chart";
-import { MOOD_BY_KEY, MOOD_HISTORY, MOOD_OPTIONS } from "@/lib/mock-data";
-import type { MoodKey } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { MOOD_BY_KEY, MOOD_OPTIONS } from "@/lib/mock-data";
+import { useAppStore } from "@/lib/store";
+import { deriveMoodHistory, selectMoodEntries } from "@/lib/store/selectors";
+import type { MoodEntry, MoodKey } from "@/lib/types";
+import { cn, todayKey } from "@/lib/utils";
 
 type Range = 7 | 30 | 60;
 
 export default function MoodPage() {
+  const moodEntries = useAppStore(selectMoodEntries);
+  const logMood = useAppStore((s) => s.logMood);
+  const history = useMemo(() => deriveMoodHistory(moodEntries), [moodEntries]);
+
   const [mood, setMood] = useState<MoodKey | null>(null);
   const [energy, setEnergy] = useState(5);
   const [stress, setStress] = useState(5);
@@ -26,10 +32,11 @@ export default function MoodPage() {
   const [saved, setSaved] = useState(false);
   const [range, setRange] = useState<Range>(30);
 
-  const windowed = useMemo(() => MOOD_HISTORY.slice(-range), [range]);
+  const windowed = useMemo(() => history.slice(-range), [history, range]);
 
   const averages = useMemo(() => {
     const n = windowed.length;
+    if (n === 0) return { mood: "–", anxiety: "–", confidence: "–", sleep: "–" };
     const sum = windowed.reduce(
       (acc, e) => ({
         mood: acc.mood + MOOD_BY_KEY[e.mood].score,
@@ -48,7 +55,19 @@ export default function MoodPage() {
   }, [windowed]);
 
   function handleSave() {
-    // Mock persistence — a real build would POST here.
+    if (!mood) return;
+    const existing = history.find((e) => e.date === todayKey());
+    logMood({
+      date: todayKey(),
+      mood,
+      energy,
+      stress,
+      anxiety,
+      confidence,
+      sleepHours: existing?.sleepHours ?? 7,
+      sleepQuality,
+      note: note.trim() || undefined,
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2600);
   }
@@ -127,7 +146,7 @@ export default function MoodPage() {
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-grow-600 dark:text-grow-400"
             >
               <Check className="h-4 w-4" />
-              Logged — that&rsquo;s day {MOOD_HISTORY.length + 1}
+              Logged — that&rsquo;s day {history.length}
             </motion.span>
           )}
         </div>
@@ -197,7 +216,7 @@ export default function MoodPage() {
             <CardTitle>Last 60 days</CardTitle>
           </CardHeader>
           <CardContent>
-            <MoodHeatmap />
+            <MoodHeatmap entries={history.slice(-60)} />
           </CardContent>
         </Card>
       </div>
@@ -234,12 +253,12 @@ function StatTile({
 }
 
 /** GitHub-style contribution grid, coloured by mood score. */
-function MoodHeatmap() {
+function MoodHeatmap({ entries }: { entries: MoodEntry[] }) {
   return (
     <div>
       <div className="no-scrollbar overflow-x-auto pb-1">
         <div className="grid grid-flow-col grid-rows-7 gap-1.5" style={{ minWidth: "max-content" }}>
-          {MOOD_HISTORY.map((entry) => {
+          {entries.map((entry) => {
             const m = MOOD_BY_KEY[entry.mood];
             return (
               <span

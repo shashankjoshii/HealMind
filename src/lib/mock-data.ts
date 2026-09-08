@@ -12,23 +12,9 @@ import type {
 } from "./types";
 import { PATH_BY_KEY } from "./paths";
 import { toDateKey } from "./utils";
+import { seeded } from "./prng";
 
 export { PATHS, PATH_BY_KEY, phaseForDay } from "./paths";
-
-/**
- * Deterministic PRNG (mulberry32). Seeded output keeps the server and client
- * renders identical — Math.random() here would cause hydration mismatches on
- * every chart in the app.
- */
-function seeded(seed: number) {
-  return function next() {
-    seed |= 0;
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 export const MOOD_OPTIONS: MoodOption[] = [
   { key: "awful", emoji: "😞", label: "Awful", score: 1, color: "#f83b3b" },

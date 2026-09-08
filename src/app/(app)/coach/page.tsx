@@ -2,14 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Info, Phone, Send, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { crisisResponseFor, detectCrisisCategory } from "@/lib/safety";
-import type { ChatMessage } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import type { ChatMessage, Suggestion } from "@/lib/types";
+import { cn, newId } from "@/lib/utils";
+
+function chip(label: string): Suggestion {
+  return { label, payload: { type: "message", text: label } };
+}
 
 const OPENERS = [
   "I can't sleep — my brain won't stop",
@@ -23,18 +28,18 @@ const OPENERS = [
  * — but the crisis check in `send()` must stay client-side AND be re-run
  * server-side, so it can't be bypassed by a modified client.
  */
-const REPLIES: { match: RegExp; content: string; suggestions?: string[] }[] = [
+const REPLIES: { match: RegExp; content: string; suggestions?: Suggestion[] }[] = [
   {
     match: /sleep|3am|awake|insomnia|night|tired/i,
     content:
       "Nights are the worst part for a lot of people. There's nothing to distract you, and the same three thoughts get louder.\n\nOne thing that genuinely helps: get out of bed. Lying there rehearsing it teaches your brain that bed is where you ruminate. Ten minutes somewhere else, dim light, no phone, then go back.\n\nWant to try a breathing pacer with me?",
-    suggestions: ["Yes, let's breathe", "What else helps?"],
+    suggestions: [chip("Yes, let's breathe"), chip("What else helps?")],
   },
   {
     match: /work|job|boss|burn|exhaust|overwhelm|deadline/i,
     content:
       "That sounds like a lot to be carrying, and the fact that it follows you home is usually the sign that the load itself is the problem — not your ability to handle it.\n\nCan I ask a blunt question? If one thing came off your plate this week, what would you actually pick?",
-    suggestions: ["I can't drop anything", "I don't know where to start"],
+    suggestions: [chip("I can't drop anything"), chip("I don't know where to start")],
   },
   {
     match: /fraud|imposter|not good enough|deserve|failure|useless/i,
@@ -45,20 +50,20 @@ const REPLIES: { match: RegExp; content: string; suggestions?: string[] }[] = [
     match: /energy|motivat|can'?t be bothered|pointless|flat|empty|numb/i,
     content:
       "When everything feels flat, waiting to feel motivated is the trap — the motivation tends to arrive after the action, not before it.\n\nSo let's go absurdly small. Not \"sort my life out\". Something like putting three things in the bin, or standing outside for two minutes.\n\nWhat's the smallest version of something you've been putting off?",
-    suggestions: ["That still feels like too much", "Okay, I'll try"],
+    suggestions: [chip("That still feels like too much"), chip("Okay, I'll try")],
   },
   {
     match: /anxious|anxiety|panic|worry|scared|nervous|spiral/i,
     content:
       "Thank you for saying it plainly. Anxiety gets louder when it's vague, so naming it is genuinely useful rather than just a nice idea.\n\nTwo questions, if you're up for it: where do you feel it in your body right now, and what specifically are you predicting will happen?\n\nVague dread can't be tested. A specific prediction can.",
-    suggestions: ["Let's do a grounding exercise", "I don't know what I'm afraid of"],
+    suggestions: [chip("Let's do a grounding exercise"), chip("I don't know what I'm afraid of")],
   },
 ];
 
 function coachReply(userText: string): ChatMessage {
   const hit = REPLIES.find((r) => r.match.test(userText));
   return {
-    id: crypto.randomUUID(),
+    id: newId(),
     role: "coach",
     createdAt: new Date().toISOString(),
     content:
@@ -69,6 +74,7 @@ function coachReply(userText: string): ChatMessage {
 }
 
 export default function CoachPage() {
+  const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
@@ -91,7 +97,7 @@ export default function CoachPage() {
     if (!trimmed || typing) return;
 
     const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: newId(),
       role: "user",
       createdAt: new Date().toISOString(),
       content: trimmed,
@@ -108,7 +114,7 @@ export default function CoachPage() {
       setMessages((m) => [
         ...m,
         {
-          id: crypto.randomUUID(),
+          id: newId(),
           role: "coach",
           createdAt: new Date().toISOString(),
           content: crisisResponseFor(crisis),
@@ -123,6 +129,14 @@ export default function CoachPage() {
       setMessages((m) => [...m, coachReply(trimmed)]);
       setTyping(false);
     }, 1100);
+  }
+
+  function handleSuggestion(s: Suggestion) {
+    if (s.payload.type === "navigate") {
+      router.push(s.payload.href);
+    } else {
+      send(s.payload.text);
+    }
   }
 
   return (
@@ -157,7 +171,7 @@ export default function CoachPage() {
       <Card className="flex h-[min(70vh,44rem)] flex-col overflow-hidden">
         <div className="flex-1 space-y-4 overflow-y-auto p-5 sm:p-6">
           {messages.map((m) => (
-            <Bubble key={m.id} message={m} onSuggestion={send} />
+            <Bubble key={m.id} message={m} onSuggestion={handleSuggestion} />
           ))}
 
           {typing && (
@@ -234,7 +248,7 @@ function Bubble({
   onSuggestion,
 }: {
   message: ChatMessage;
-  onSuggestion: (text: string) => void;
+  onSuggestion: (suggestion: Suggestion) => void;
 }) {
   const isUser = message.role === "user";
   const isCrisis = message.safety === "crisis";
@@ -290,11 +304,11 @@ function Bubble({
           <div className="mt-2.5 flex flex-wrap gap-2">
             {message.suggestions.map((s) => (
               <button
-                key={s}
+                key={s.label}
                 onClick={() => onSuggestion(s)}
                 className="rounded-full border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-brand-300 hover:text-[var(--text)]"
               >
-                {s}
+                {s.label}
               </button>
             ))}
           </div>

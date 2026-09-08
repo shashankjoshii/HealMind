@@ -107,6 +107,7 @@ export interface MissionStep {
 export interface DailyMission {
   day: number;
   path: PathKey;
+  /** A `Phase.key` from this path's `phases` array (see paths.ts) — not a free-form label. */
   phase: string;
   title: string;
   intention: string;
@@ -159,6 +160,21 @@ export type MeditationCategory =
 
 export type ChatRole = "user" | "coach";
 
+/**
+ * A quick-reply chip attached to a coach message. `payload` is a discriminated
+ * union so a chip can do more than echo its own label back as a chat message —
+ * "Yes, let's breathe" should actually open a breathing tool, not restart the
+ * classifier with that literal string.
+ *
+ * `intent`/`flow` payload variants (routing into the weighted intent
+ * classifier and multi-turn flows) and the `openSos` tool key are added once
+ * those modules exist; for now `message` and `navigate` cover current usage.
+ */
+export interface Suggestion {
+  label: string;
+  payload: { type: "message"; text: string } | { type: "navigate"; href: string };
+}
+
 export interface ChatMessage {
   id: string;
   role: ChatRole;
@@ -167,7 +183,7 @@ export interface ChatMessage {
   /** Set when the safety layer intercepted this turn. */
   safety?: "crisis";
   /** Quick-reply chips offered alongside a coach message. */
-  suggestions?: string[];
+  suggestions?: Suggestion[];
 }
 
 export interface Habit {
